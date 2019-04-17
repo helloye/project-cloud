@@ -4,7 +4,7 @@ self.__precacheManifest = [
     "url": "/project-cloud/static/js/runtime~main.f055a67a.js"
   },
   {
-    "revision": "f3110af37899c9421c0e",
+    "revision": "bb10d37030285a2da231",
     "url": "/project-cloud/static/js/main.51a981af.chunk.js"
   },
   {
@@ -12,11 +12,11 @@ self.__precacheManifest = [
     "url": "/project-cloud/static/js/2.65aa1cca.chunk.js"
   },
   {
-    "revision": "f3110af37899c9421c0e",
-    "url": "/project-cloud/static/css/main.7814f788.chunk.css"
+    "revision": "bb10d37030285a2da231",
+    "url": "/project-cloud/static/css/main.28f3ed87.chunk.css"
   },
   {
-    "revision": "6ee482d84ee4be852b827a427044336e",
+    "revision": "0799c9b031c1b03f8f153916ba3d5840",
     "url": "/project-cloud/index.html"
   }
 ];
