@@ -116,7 +116,11 @@ code {
 
 #resource-request-input {
   width: 45%;
-  height: 200px;
+  height: 250px;
+}
+
+#resource-request-input input{
+  width: 50px;
 }
 
 /*
@@ -124,7 +128,7 @@ code {
  */
 
 #pre-config-resources {
-  width: 40%;
+  width: 65%;
   margin: auto;
 }
 
@@ -134,11 +138,12 @@ table {
 
 table, td, th {
   border: 2px solid black;
-  padding: 5px;
+  padding: 10px 5px;
+  margin: auto;
 }
 
 #submit-button {
-  padding-top: 20px;
+  padding-top: 100px;
   margin: auto;
   width: 100%;
 }
@@ -146,4 +151,7 @@ table, td, th {
 #submit-button button{
   height: 30px;
   width: 100%;
+  font-size: 18px;
+  color: white;
+  background: #5bb3e6;
 }
