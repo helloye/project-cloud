@@ -87,60 +87,29 @@ code {
   cursor: pointer;
 }
 
-/*
-  Resource Selection Section
-*/
-#resource-spec-section input {
-  margin-top: 10px;
+/* Spec Selection Button */
+#spec-selection {
+  margin-top: 70px;
 }
 
-#resource-spec-section {
-  padding-left: 70px;
-  padding-top: 50px;
-  display: inline-flex;
-  margin: auto;
-  width: 65%;
+#spec-selection button {
+  background: #d20e00;
+  color: white;
+  margin: 0 30px;
+  width: 250px;
+  font-size: 20px;
+  line-height: 1.5em;
 }
 
-#cpu-dropdown {
-  width: 45%;
-  font-size: 18px;
+#btn-quality.selected {
+  background: green;
 }
 
-#cpu-dropdown select {
-  position: relative;
-  top: -2px;
-  width: 60%;
-  margin-left: 10px;
+#btn-security.selected {
+  background: green;
 }
 
-#resource-request-input {
-  width: 45%;
-  height: 250px;
-}
-
-#resource-request-input input{
-  width: 50px;
-}
-
-/*
- Pre Config Section
- */
-
-#pre-config-resources {
-  width: 65%;
-  margin: auto;
-}
-
-table {
-  border-collapse: collapse;
-}
-
-table, td, th {
-  border: 2px solid black;
-  padding: 10px 5px;
-  margin: auto;
-}
+/* Submit Button */
 
 #submit-button {
   padding-top: 100px;
@@ -149,9 +118,25 @@ table, td, th {
 }
 
 #submit-button button{
-  height: 30px;
   width: 100%;
-  font-size: 18px;
+  font-size: 20px;
   color: white;
   background: #5bb3e6;
+  line-height: 2em;
+}
+
+#submit-button button.btn-disabled{
+  background: grey;
+}
+
+/* Post target */
+#post-target {
+  margin: 20px auto;
+  width: 800px;
+}
+
+#post-target input {
+  font-size: 20px;
+  width: 100%;
+  line-height: 1.5em;
 }

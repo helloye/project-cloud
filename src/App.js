@@ -1,160 +1,111 @@
 import React, { Component } from 'react';
+import * as moment from 'moment';
 import './App.css';
 
 class App extends Component {
   constructor(props) {
     super(props);
+    const endTime = moment();
     this.state = {
-      duration: 1,
-      config: 0
+      requestName: undefined,
+      duration: 5,
+      config: 0,
+      endTime,
+      quality: false,
+      security: false,
+      postTarget: 'http://localhost:3000/dc1'
     }
   }
 
-  handleSliderChange = (e) => {
-    this.setState({ duration: e.target.value });
+  toggleQuality = () => {
+    this.setState({ quality: !this.state.quality });
   }
 
-  handleSelectConfig = (i) => {
-    const selection = this.state.config === i ? 0 : i;
-    this.setState({ config: selection});
+  toggleSecurity = () => {
+    this.setState({ security: !this.state.security });
+  }
+
+  handleRequestNameChange = (e) => {
+    this.setState({ requestName: e.target.value });
+  }
+
+  handleSliderChange = (e) => {
+    const newEndTime = moment().add(e.target.value, 's');
+    this.setState({ duration: e.target.value, endTime: newEndTime });
+  }
+
+  postData = () => {
+    const { requestName, quality, security, endTime } = this.state;
+    fetch(this.state.postTarget, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        requestName,
+        quality,
+        security,
+        endTime: endTime.unix()
+      })
+    })
   }
 
   render() {
+    // Can only submit if one of the security
+    const { requestName, quality, security, postTarget } = this.state;
+    // Can only submit if user had filled in request name, and selected an option.
+    const canSubmit = requestName && (quality || security);
     return (
       <div className="App">
+        <h1>Resource Request Dashboard</h1>
         <div id='form'>
           <div id='request-name'>
             Request Name: <input
             placeholder={' Enter your request name here...'}
+            onChange={this.handleRequestNameChange}
           />
           </div>
           <div id='time-slider'>
-            Duration (hrs):
+            Duration (seconds):
             <div id='duration-label'>
+              <div>
               {parseFloat(Math.round(this.state.duration * 100)/100).toFixed(2)}
+              </div>
+              <div>
+              {'Resource reserved until: ' + this.state.endTime.format('MMMM Do YYYY, h:mm:ss a')}
+              </div>
             </div>
             <input
               id='slider'
               type='range'
-              min='1' max='12'
+              min='5' max='60'
               value={this.state.duration}
               onChange={this.handleSliderChange}
-              step='.25'/>
-
+              step='.5'/>
           </div>
-          <div id='resource-spec-section'>
-            <div id='cpu-dropdown'>
-              CPU:
-              <select>
-                <option value='C2_2.4'>2 Cores, 2.4 Ghz</option>
-                <option value='C6_3.6'>6 Cores, 3.6 Ghz</option>
-                <option value='C8_4.1'>6 Cores, 4.1 Ghz</option>
-                <option value='C8_3.2'>8 Cores, 3.2 Ghz</option>
-                <option value='C16_4.1'>16 Cores, 4.1 Ghz</option>
-              </select>
-            </div>
-            <div id='resource-request-input'>
-              <div id='ram-input'>
-                RAM (GB): <input
-              />
-              </div>
-              <div id='storage-input'>
-                Storage (GB): <input
-              />
-              </div>
-              <div id='network-down-input'>
-                Network Down (Mbps): <input
-              />
-              </div>
-              <div id='network-up-input'>
-                Network Up (Mbps): <input
-              />
-              </div>
-              <div id='encrypt-traffic'>
-                Encrypt Network Traffic: <input
-                type='checkbox'
-              />
-              </div>
-            </div>
+          <div id='spec-selection'>
+            <button id='btn-quality' className={quality ? 'selected' : ''} onClick={this.toggleQuality}>
+              Quality { quality ? '✓' : ''}
+            </button>
+            <button id='btn-security' className={security ? 'selected' : ''} onClick={this.toggleSecurity}>
+              Security { security ? '✓' : ''}
+            </button>
           </div>
-          <div id='pre-config-resources'>
-            <table>
-              <tr>
-                <th>Select</th>
-                <th>Name</th>
-                <th>CPU</th>
-                <th>RAM</th>
-                <th>Storage</th>
-                <th>Network</th>
-              </tr>
-              <tr style={this.state.config === 1 ? {
-                background: 'lightblue'
-              } : {}}>
-                <td>
-                  <input
-                    value = 'Select'
-                    type ='button'
-                    onClick={() => this.handleSelectConfig(1)}
-                  />
-                </td>
-                <td>Config 1</td>
-                <td>2 Cores 2.4GHz</td>
-                <td>8 GB</td>
-                <td>1 TB</td>
-                <td>10/10</td>
-              </tr>
-              <tr style={this.state.config === 2 ? {
-                background: 'lightblue'
-              } : {}}>
-                <td>
-                  <input
-                    value = 'Select'
-                    type ='button'
-                    onClick={() => this.handleSelectConfig(2)}
-                  />
-                </td>
-                <td>Config 2</td>
-                <td>6 Cores 3.4GHz</td>
-                <td>16 GB</td>
-                <td>4 TB</td>
-                <td>100/100</td>
-              </tr>
-              <tr style={this.state.config === 3 ? {
-                background: 'lightblue'
-              } : {}}>
-                <td>
-                  <input
-                    value = 'Select'
-                    type ='button'
-                    onClick={() => this.handleSelectConfig(3)}
-                  />
-                </td>
-                <td>Config 3</td>
-                <td>18 Cores 4.1GHz</td>
-                <td>32 GB</td>
-                <td>50 TB</td>
-                <td>100/50</td>
-              </tr>
-              <tr style={this.state.config === 4 ? {
-                background: 'lightblue'
-              } : {}}>
-                <td>
-                  <input
-                    value = 'Select'
-                    type ='button'
-                    onClick={() => this.handleSelectConfig(4)}
-                  />
-                </td>
-                <td>Config 4</td>
-                <td>32 Cores 3.6GHz</td>
-                <td>64 GB</td>
-                <td>1 PB</td>
-                <td>50/50</td>
-              </tr>
-            </table>
-            <div id='submit-button'>
-              <button>Submit Request</button>
-            </div>
+          <div id='submit-button'>
+            <button className={!canSubmit ? 'btn-disabled' : 'btn-enabled'}
+                    disabled={!canSubmit}
+                    onClick={this.postData}
+            >
+              {canSubmit ? 'Submit Request' : 'Please fill in all the required fields...'}
+            </button>
+          </div>
+          <div id='post-target'>
+            <input
+              value={postTarget}
+              placeholder={'Target destination here... (i.e https://localhost:3000/dc1)'}
+              onChange={this.handleRequestNameChange}
+            />
           </div>
         </div>
       </div>
