@@ -7,6 +7,7 @@ class App extends Component {
     super(props);
     const endTime = moment();
     this.state = {
+      intervalId: undefined,
       requestName: undefined,
       duration: 5,
       config: 0,
@@ -17,7 +18,23 @@ class App extends Component {
     }
   }
 
-  toggleQuality = () => {
+  componentDidMount() {
+    const intervalID = setInterval(() => {
+        const endTime = moment().add(this.state.duration, 's');
+        this.setState({ endTime });
+    }, 500);
+    this.setState({
+        intervalID
+    })
+  }
+
+  componentWillUnmount() {
+    if (!!this.state.intervalID) {
+      clearInterval(this.state.intervalID);
+    }
+  }
+
+    toggleQuality = () => {
     this.setState({ quality: !this.state.quality });
   }
 
@@ -30,8 +47,7 @@ class App extends Component {
   }
 
   handleSliderChange = (e) => {
-    const newEndTime = moment().add(e.target.value, 's');
-    this.setState({ duration: e.target.value, endTime: newEndTime });
+    this.setState({ duration: e.target.value });
   }
 
   postData = () => {
