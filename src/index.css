@@ -109,6 +109,10 @@ code {
   background: green;
 }
 
+#btn-backup.selected {
+  background: green;
+}
+
 /* Submit Button */
 
 #submit-button {

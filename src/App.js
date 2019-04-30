@@ -14,6 +14,7 @@ class App extends Component {
       endTime,
       quality: false,
       security: false,
+      backup: false,
       postTarget: 'http://localhost:3000/dc1'
     }
   }
@@ -34,12 +35,20 @@ class App extends Component {
     }
   }
 
-    toggleQuality = () => {
-    this.setState({ quality: !this.state.quality });
-  }
-
-  toggleSecurity = () => {
-    this.setState({ security: !this.state.security });
+  toggleButton = (b) => {
+    switch (b) {
+        case 'security':
+            this.setState({ security: !this.state.security });
+            break;
+        case 'quality':
+            this.setState({ quality: !this.state.quality });
+            break;
+        case 'backup':
+            this.setState({ backup: !this.state.backup });
+            break;
+        default:
+          break;
+    }
   }
 
   handleRequestNameChange = (e) => {
@@ -51,7 +60,7 @@ class App extends Component {
   }
 
   postData = () => {
-    const { requestName, quality, security, endTime } = this.state;
+    const { requestName, quality, security, endTime , backup} = this.state;
     fetch(this.state.postTarget, {
       method: 'POST',
       headers: {
@@ -62,6 +71,7 @@ class App extends Component {
         requestName,
         quality,
         security,
+        backup,
         endTime: endTime.unix()
       })
     })
@@ -69,7 +79,7 @@ class App extends Component {
 
   render() {
     // Can only submit if one of the security
-    const { requestName, quality, security, postTarget } = this.state;
+    const { requestName, quality, security, backup, postTarget } = this.state;
     // Can only submit if user had filled in request name, and selected an option.
     const canSubmit = requestName && (quality || security);
     return (
@@ -101,11 +111,17 @@ class App extends Component {
               step='.5'/>
           </div>
           <div id='spec-selection'>
-            <button id='btn-quality' className={quality ? 'selected' : ''} onClick={this.toggleQuality}>
+            <button id='btn-quality' className={quality ? 'selected' : ''}
+                    onClick={() => this.toggleButton('quality')}>
               Quality { quality ? '✓' : ''}
             </button>
-            <button id='btn-security' className={security ? 'selected' : ''} onClick={this.toggleSecurity}>
+            <button id='btn-security' className={security ? 'selected' : ''}
+                    onClick={() => this.toggleButton('security')}>
               Security { security ? '✓' : ''}
+            </button>
+            <button id='btn-backup' className={backup ? 'selected' : ''}
+                    onClick={() => this.toggleButton('backup')}>
+                Backup { backup ? '✓' : ''}
             </button>
           </div>
           <div id='submit-button'>
