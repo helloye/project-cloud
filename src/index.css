@@ -42,7 +42,8 @@ code {
 
 #request-name input {
   font-size: 18px;
-  width: 50%;
+  margin: 10px auto;
+  width: 70%;
 }
 
 #time-slider {
@@ -95,7 +96,7 @@ code {
 #spec-selection button {
   background: #d20e00;
   color: white;
-  margin: 0 30px;
+  margin: 10px 30px;
   width: 250px;
   font-size: 20px;
   line-height: 1.5em;
@@ -136,11 +137,11 @@ code {
 /* Post target */
 #post-target {
   margin: 20px auto;
-  width: 800px;
+  width: 100%;
 }
 
 #post-target input {
   font-size: 20px;
-  width: 100%;
+  width: 90%;
   line-height: 1.5em;
 }

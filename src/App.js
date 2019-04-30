@@ -97,7 +97,8 @@ class App extends Component {
         <h1>Resource Request Dashboard</h1>
         <div id='form'>
           <div id='request-name'>
-            Request Name: <input
+            <div>Request Name</div>
+            <input
             placeholder={' Enter your request name here...'}
             onChange={(e) => this.handleInputChange(e, 'requestName')}
           />
