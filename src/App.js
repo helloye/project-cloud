@@ -51,8 +51,18 @@ class App extends Component {
     }
   }
 
-  handleRequestNameChange = (e) => {
-    this.setState({ requestName: e.target.value });
+  handleInputChange = (e, i) => {
+    switch (i) {
+        case 'requestName':
+            this.setState({ requestName: e.target.value });
+            break;
+        case 'postTarget':
+            this.setState({ postTarget: e.target.value });
+            break;
+        default:
+            break;
+    }
+
   }
 
   handleSliderChange = (e) => {
@@ -89,7 +99,7 @@ class App extends Component {
           <div id='request-name'>
             Request Name: <input
             placeholder={' Enter your request name here...'}
-            onChange={this.handleRequestNameChange}
+            onChange={(e) => this.handleInputChange(e, 'requestName')}
           />
           </div>
           <div id='time-slider'>
@@ -136,7 +146,7 @@ class App extends Component {
             <input
               value={postTarget}
               placeholder={'Target destination here... (i.e https://localhost:3000/dc1)'}
-              onChange={this.handleRequestNameChange}
+              onChange={(e) => this.handleInputChange(e, 'postTarget')}
             />
           </div>
         </div>
