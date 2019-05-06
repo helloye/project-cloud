@@ -73,7 +73,6 @@ class App extends Component {
     const { requestName, quality, security, endTime , backup} = this.state;
     fetch(this.state.postTarget, {
       method: 'POST',
-      mode: 'no-cors',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
