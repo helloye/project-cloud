@@ -15,8 +15,7 @@ class App extends Component {
       quality: false,
       security: false,
       backup: false,
-      // postTarget: 'http://pcvm2-15.lan.sdn.uky.edu:3000/request'
-      postTarget: 'http://localhost:3000/request',
+      postTarget: 'http://pcvm2-15.lan.sdn.uky.edu:3000/request',
       isRequesting: false
     }
   }
