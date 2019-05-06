@@ -15,7 +15,7 @@ class App extends Component {
       quality: false,
       security: false,
       backup: false,
-      postTarget: 'http://localhost:3000/dc1'
+      postTarget: 'http://pcvm2-15.lan.sdn.uky.edu/request'
     }
   }
 
