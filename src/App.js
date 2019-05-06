@@ -71,7 +71,7 @@ class App extends Component {
   }
 
   postData = () => {
-    const { requestName, quality, security, endTime , backup} = this.state;
+    const { requestName, quality, security, endTime , backup, duration } = this.state;
     fetch(this.state.postTarget, {
       method: 'POST',
       headers: {
@@ -83,7 +83,8 @@ class App extends Component {
         quality,
         security,
         backup,
-        endTime: endTime.unix()
+        duration,
+        endTime: endTime.unix(),
       })
     });
 
