@@ -89,7 +89,8 @@ class App extends Component {
 
     this.setState({isRequesting: true});
     setTimeout(() => {
-        this.setState({isRequesting: false});
+        document.getElementById('request-name-input').value = '';
+        this.setState({isRequesting: false, requestName: undefined});
     }, 3000);
   }
 
@@ -105,6 +106,7 @@ class App extends Component {
           <div id='request-name'>
             <div>Request Name</div>
             <input
+            id='request-name-input'
             placeholder={' Enter your request name here...'}
             onChange={(e) => this.handleInputChange(e, 'requestName')}
           />
