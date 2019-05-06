@@ -15,7 +15,9 @@ class App extends Component {
       quality: false,
       security: false,
       backup: false,
-      postTarget: 'http://pcvm2-15.lan.sdn.uky.edu:3000/request'
+      // postTarget: 'http://pcvm2-15.lan.sdn.uky.edu:3000/request'
+      postTarget: 'http://localhost:3000/request',
+      isRequesting: false
     }
   }
 
@@ -84,12 +86,17 @@ class App extends Component {
         backup,
         endTime: endTime.unix()
       })
-    })
+    });
+
+    this.setState({isRequesting: true});
+    setTimeout(() => {
+        this.setState({isRequesting: false});
+    }, 3000);
   }
 
   render() {
     // Can only submit if one of the security
-    const { requestName, quality, security, backup, postTarget } = this.state;
+    const { requestName, quality, security, backup, postTarget, isRequesting } = this.state;
     // Can only submit if user had filled in request name, and selected an option.
     const canSubmit = requestName && (quality || security);
     return (
@@ -136,11 +143,13 @@ class App extends Component {
             </button>
           </div>
           <div id='submit-button'>
-            <button className={!canSubmit ? 'btn-disabled' : 'btn-enabled'}
-                    disabled={!canSubmit}
+            <button className={!canSubmit || isRequesting ? 'btn-disabled' : 'btn-enabled'}
+                    disabled={!canSubmit || isRequesting}
                     onClick={this.postData}
             >
-              {canSubmit ? 'Submit Request' : 'Please fill in all the required fields...'}
+              {canSubmit && !isRequesting ?
+                  'Submit Request' :
+                  isRequesting ? 'Requesting...' : 'Please fill in all the required fields...'}
             </button>
           </div>
           <div id='post-target'>

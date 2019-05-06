@@ -11,6 +11,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: rgb(51, 54, 56);
 }
 
 code {
@@ -27,13 +28,21 @@ code {
   height: 100%;
 }
 
+.App h1 {
+  background: slategray;
+  color: white;
+  height: 80px;
+  margin: auto;
+}
+
 #form {
   width: 70%;
   height: inherit;
-  margin: auto;
-  padding-top: 50px;
+  margin: 20px auto;
+  padding-top: 10px;
   padding-bottom: 50px;
-  background: lightgrey;
+  background: slategray;
+  color: white;
 }
 
 #request-name {
@@ -90,7 +99,7 @@ code {
 
 /* Spec Selection Button */
 #spec-selection {
-  margin-top: 70px;
+  margin-top: 50px;
 }
 
 #spec-selection button {
