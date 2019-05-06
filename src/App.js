@@ -90,7 +90,13 @@ class App extends Component {
     this.setState({isRequesting: true});
     setTimeout(() => {
         document.getElementById('request-name-input').value = '';
-        this.setState({isRequesting: false, requestName: undefined});
+        this.setState({
+            isRequesting: false,
+            requestName: undefined,
+            security: false,
+            quality: false,
+            backup: false
+        });
     }, 3000);
   }
 
