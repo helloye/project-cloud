@@ -42,10 +42,23 @@ class App extends Component {
         return acc;
       }, []);
 
+      // If the queued job was matched. Set it's allocation state.
       if (matchedJob.length > 0) {
         this.setState({ allocationState: matchedJob[0].allocation });
       }
+
+      const completedJobs = data.completedJobs.reduce((acc, j) => {
+          if(this.state.requestJobID === j.id) {
+              acc.push(j);
+          }
+          return acc;
+      }, []);
+      // If we find it in the completed pool, set state to completed and disable link
+        if (completedJobs.length > 0) {
+            this.setState({ allocationState: 'completed' });
+        }
     });
+
     const intervalID = setInterval(() => {
         const endTime = moment().add(this.state.duration, 's');
         this.setState({ endTime });
@@ -219,14 +232,16 @@ class App extends Component {
           // Return link and reset button.
           return(<div id='submit-button'>
               <button id='redirect-button'
-                      className={allocationState === 'queued' ? 'btn-cancel' : ''}
+                      className={allocationState === 'queued' ? 'btn-cancel'
+                          : allocationState === 'completed' ? 'btn-completed' : ''}
                       onClick={() => this.redirectOrCancel(requestJobID, allocationState)}>
                   {allocationState === 'queued' ?
                       `Job id:${requestJobID} queued. Click to Cancel Request`
                       :
-                      'Resource allocated on: ' + allocationState}
+                      allocationState === 'completed' ?
+                          'Job Completed!' :'Resource allocated on: ' + allocationState}
               </button>
-              {allocationState === 'queued' ? null :
+              {allocationState === 'queued' || allocationState === 'completed' ? null :
               <button id='reset-button' onClick={this.resetData}>
                   Request New Resources
               </button>
@@ -251,15 +266,19 @@ class App extends Component {
   // Checks if it's allocated to one of the VM's or if queued
   // And double checks if it was assigned an id
   isAllocatedOrQueued = function (jobid, allocation) {
-      return (allocation === 'west1' || allocation === 'west2'
-      || allocation === 'north1' || allocation === 'north2'
-      || allocation === 'east1' || allocation === 'east2'
-      || allocation === 'queued') && jobid > 0;
+      return allocation !== 'draft' && jobid > 0;
   }
 
   redirectOrCancel = (id, dataCenter) => {
-      // If job is still queued, we need to send a cancel.
-      if (dataCenter === 'queued') {
+      // If dataCenter is 'completed' it is not longer on any of the data center.
+      // This redirect should basically reset the app state
+      if (dataCenter === 'completed') {
+          this.resetData();
+
+      }
+
+      // Else if job is still queued, we need to send a cancel.
+      else if (dataCenter === 'queued') {
           // Send post to urbService to cancel job/
           this.killRequest(id);
           // Then reset state of app.
