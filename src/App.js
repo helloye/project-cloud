@@ -10,13 +10,13 @@ class App extends Component {
       intervalId: undefined,
       requestName: undefined,
       duration: 5,
-      config: 0,
       endTime,
       quality: false,
       security: false,
       backup: false,
-      postTarget: 'http://pcvm2-15.lan.sdn.uky.edu:3000/request',
-      isRequesting: false
+      postTarget: 'http://pcvm2-15.lan.sdn.uky.edu:3000',
+      requestJobID: -1,
+      allocationState: 'draft'
     }
   }
 
@@ -72,7 +72,7 @@ class App extends Component {
 
   postData = () => {
     const { requestName, quality, security, endTime , backup, duration } = this.state;
-    fetch(this.state.postTarget, {
+    fetch(`${this.state.postTarget}/request`, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -86,80 +86,44 @@ class App extends Component {
         duration,
         endTime: endTime.unix(),
       })
+    }).then((res) => res.json()).then((data) => {
+        console.log('Request Response:', data);
+        setTimeout(() => {
+            this.setState({
+                allocationState: data.allocation,
+                requestJobID: data.id
+            });
+        }, 600);
     });
 
-    this.setState({isRequesting: true});
-    setTimeout(() => {
-        document.getElementById('request-name-input').value = '';
-        this.setState({
-            isRequesting: false,
-            requestName: undefined,
-            security: false,
-            quality: false,
-            backup: false
-        });
-    }, 3000);
+    this.setState({allocationState: 'requesting'});
+  }
+
+  resetData = () =>{
+      const endTime = moment();
+      this.setState({
+          intervalId: undefined,
+          requestName: undefined,
+          duration: 5,
+          endTime,
+          quality: false,
+          security: false,
+          backup: false,
+          requestJobID: -1,
+          allocationState: 'draft'
+      })
   }
 
   render() {
     // Can only submit if one of the security
-    const { requestName, quality, security, backup, postTarget, isRequesting } = this.state;
+    const { postTarget } = this.state;
     // Can only submit if user had filled in request name, and selected an option.
-    const canSubmit = requestName && (quality || security);
     return (
       <div className="App">
         <h1>Resource Request Dashboard</h1>
         <div id='form'>
-          <div id='request-name'>
-            <div>Request Name</div>
-            <input
-            id='request-name-input'
-            placeholder={' Enter your request name here...'}
-            onChange={(e) => this.handleInputChange(e, 'requestName')}
-          />
-          </div>
-          <div id='time-slider'>
-            Duration (seconds):
-            <div id='duration-label'>
-              <div>
-              {parseFloat(Math.round(this.state.duration * 100)/100).toFixed(2)}
-              </div>
-              <div>
-              {'Resource reserved until: ' + this.state.endTime.format('MMMM Do YYYY, h:mm:ss a')}
-              </div>
-            </div>
-            <input
-              id='slider'
-              type='range'
-              min='5' max='60'
-              value={this.state.duration}
-              onChange={this.handleSliderChange}
-              step='.5'/>
-          </div>
-          <div id='spec-selection'>
-            <button id='btn-quality' className={quality ? 'selected' : ''}
-                    onClick={() => this.toggleButton('quality')}>
-              Quality { quality ? '✓' : ''}
-            </button>
-            <button id='btn-security' className={security ? 'selected' : ''}
-                    onClick={() => this.toggleButton('security')}>
-              Security { security ? '✓' : ''}
-            </button>
-            <button id='btn-backup' className={backup ? 'selected' : ''}
-                    onClick={() => this.toggleButton('backup')}>
-                Backup { backup ? '✓' : ''}
-            </button>
-          </div>
-          <div id='submit-button'>
-            <button className={!canSubmit || isRequesting ? 'btn-disabled' : 'btn-enabled'}
-                    disabled={!canSubmit || isRequesting}
-                    onClick={this.postData}
-            >
-              {canSubmit && !isRequesting ?
-                  'Submit Request' :
-                  isRequesting ? 'Requesting...' : 'Please fill in all the required fields...'}
-            </button>
-          </div>
+          {this.renderFormContent()}
+          {this.renderButtons()}
           <div id='post-target'>
             <input
               value={postTarget}
@@ -170,6 +134,127 @@ class App extends Component {
         </div>
       </div>
     );
+  }
+
+  renderFormContent = () => {
+      const { quality, security, backup, allocationState, requestJobID } = this.state;
+      if (this.isAllocatedOrQueued(requestJobID, allocationState)) {
+          return null;
+      }
+      return (
+          <div>
+              <div id='request-name'>
+                  <div>Request Name</div>
+                  <input
+                      id='request-name-input'
+                      placeholder={' Enter your request name here...'}
+                      onChange={(e) => this.handleInputChange(e, 'requestName')}
+                  />
+              </div>
+              <div id='time-slider'>
+                  Duration (seconds):
+                  <div id='duration-label'>
+                      <div>
+                          {parseFloat(Math.round(this.state.duration * 100)/100).toFixed(2)}
+                      </div>
+                      <div>
+                          {'Resource reserved until: ' + this.state.endTime.format('MMMM Do YYYY, h:mm:ss a')}
+                      </div>
+                  </div>
+                  <input
+                      id='slider'
+                      type='range'
+                      min='5' max='60'
+                      value={this.state.duration}
+                      onChange={this.handleSliderChange}
+                      step='.5'/>
+              </div>
+              <div id='spec-selection'>
+                  <button id='btn-quality' className={quality ? 'selected' : ''}
+                          onClick={() => this.toggleButton('quality')}>
+                      Quality { quality ? '✓' : ''}
+                  </button>
+                  <button id='btn-security' className={security ? 'selected' : ''}
+                          onClick={() => this.toggleButton('security')}>
+                      Security { security ? '✓' : ''}
+                  </button>
+                  <button id='btn-backup' className={backup ? 'selected' : ''}
+                          onClick={() => this.toggleButton('backup')}>
+                      Backup { backup ? '✓' : ''}
+                  </button>
+              </div>
+          </div>
+      )
+  }
+
+  renderButtons = () => {
+      const { requestName, quality, security, allocationState, requestJobID } = this.state;
+      const canSubmit = requestName && (quality || security);
+      if (this.isAllocatedOrQueued(requestJobID, allocationState)) {
+          // Return link and reset button.
+          return(<div id='submit-button'>
+              <button id='redirect-button'
+                      className={allocationState === 'queued' ? 'btn-cancel' : ''}
+                      onClick={() => this.redirectOrCancel(requestJobID, allocationState)}>
+                  {allocationState === 'queued' ?
+                      `Job id:${requestJobID} queued. Click to Cancel Request`
+                      :
+                      'Resource allocated on: ' + allocationState}
+              </button>
+              {allocationState === 'queued' ? null :
+              <button id='reset-button' onClick={this.resetData}>
+                  Request New Resources
+              </button>
+              }
+
+          </div>);
+      }
+      return (
+          <div id='submit-button'>
+              <button className={!canSubmit || allocationState === 'requesting' ? 'btn-disabled' : 'btn-enabled'}
+                      disabled={!canSubmit || allocationState === 'requesting'}
+                      onClick={this.postData}
+              >
+                  {canSubmit && !allocationState === 'requesting' ?
+                      'Submit Request' :
+                      allocationState === 'requesting' ? 'Requesting...' : 'Please fill in all the required fields...'}
+              </button>
+          </div>
+      )
+  }
+
+  // Checks if it's allocated to one of the VM's or if queued
+  // And double checks if it was assigned an id
+  isAllocatedOrQueued = function (jobid, allocation) {
+      return (allocation === 'west1' || allocation === 'west2'
+      || allocation === 'north1' || allocation === 'north2'
+      || allocation === 'east1' || allocation === 'east2'
+      || allocation === 'queued') && jobid > 0;
+  }
+
+  redirectOrCancel = (id, dataCenter) => {
+      // If job is still queued, we need to send a cancel.
+      if (dataCenter === 'queued') {
+          // Send post to urbService to cancel job/
+          this.killRequest(id);
+          // Then reset state of app.
+          this.resetData();
+      } else {
+          // Else it is already allocated.
+          // TODO: Redirect to proper datacenter UI
+          window.open('http://www.google.com');
+      }
+  }
+
+  killRequest = (id) => {
+      fetch(`${this.state.postTarget}/kill`, {
+          method: 'POST',
+          headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id })
+      })
   }
 }
 

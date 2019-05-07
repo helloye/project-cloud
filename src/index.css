@@ -143,6 +143,19 @@ code {
   background: grey;
 }
 
+#redirect-button {
+  background: limegreen !important;
+}
+
+#redirect-button.btn-cancel {
+  background: #d20e00 !important;
+}
+
+#reset-button {
+  background: #d20e00 !important;
+  margin-top: 50px;
+}
+
 /* Post target */
 #post-target {
   margin: 20px auto;
