@@ -268,7 +268,7 @@ class App extends Component {
                       disabled={!canSubmit || allocationState === 'requesting'}
                       onClick={this.postData}
               >
-                  {canSubmit && !allocationState === 'requesting' ?
+                  {canSubmit && allocationState !== 'requesting' ?
                       'Submit Request' :
                       allocationState === 'requesting' ? 'Requesting...' : 'Please fill in all the required fields...'}
               </button>
