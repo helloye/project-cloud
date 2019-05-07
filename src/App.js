@@ -1,8 +1,17 @@
 import React, { Component } from 'react';
 import * as moment from 'moment';
+import openSocket from 'socket.io-client';
 import './App.css';
 
+let socket;
+socket = openSocket('http://pcvm2-15.lan.sdn.uky.edu:3000');
+// socket = openSocket('http://localhost:3000');
+const socketIOCallBack = (cb) => {
+  socket.on('job-update', (update) => cb(null, update));
+}
+
 class App extends Component {
+
   constructor(props) {
     super(props);
     const endTime = moment();
@@ -15,12 +24,28 @@ class App extends Component {
       security: false,
       backup: false,
       postTarget: 'http://pcvm2-15.lan.sdn.uky.edu:3000',
+      // postTarget: 'http://localhost:3000',
       requestJobID: -1,
       allocationState: 'draft'
     }
+
   }
 
   componentDidMount() {
+    socketIOCallBack((err, ioData) => {
+      const data = JSON.parse(ioData);
+      console.log('[SOCKET.IO] React IO Data Received:', data);
+      const matchedJob = data.activeJobs.reduce((acc, j) => {
+        if(this.state.requestJobID === j.id) {
+          acc.push(j);
+        }
+        return acc;
+      }, []);
+
+      if (matchedJob.length > 0) {
+        this.setState({ allocationState: matchedJob[0].allocation });
+      }
+    });
     const intervalID = setInterval(() => {
         const endTime = moment().add(this.state.duration, 's');
         this.setState({ endTime });
@@ -164,7 +189,7 @@ class App extends Component {
                   <input
                       id='slider'
                       type='range'
-                      min='5' max='60'
+                      min='5' max='90'
                       value={this.state.duration}
                       onChange={this.handleSliderChange}
                       step='.5'/>
