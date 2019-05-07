@@ -161,6 +161,7 @@ class App extends Component {
         <h1>Resource Request Dashboard</h1>
         <div id='form'>
           {this.renderFormContent()}
+          {this.renderJobStatus()}
           {this.renderButtons()}
           <div id='post-target'>
             <input
@@ -185,7 +186,8 @@ class App extends Component {
                   <div>Request Name</div>
                   <input
                       id='request-name-input'
-                      placeholder={' Enter your request name here...'}
+                      maxLength={15}
+                      placeholder={'Request name...'}
                       onChange={(e) => this.handleInputChange(e, 'requestName')}
                   />
               </div>
@@ -225,6 +227,17 @@ class App extends Component {
       )
   }
 
+  renderJobStatus = () => {
+      const { requestJobID, allocationState, requestName } = this.state;
+      if (allocationState === 'draft' || requestJobID <=0 || !requestName) {
+          return null;
+      }
+      return (<div id='job-status'>
+          <h3>Job: {requestName} (ID:{requestJobID})</h3>
+          <h3>Allocation Status: {allocationState}</h3>
+      </div>)
+  }
+
   renderButtons = () => {
       const { requestName, quality, security, allocationState, requestJobID } = this.state;
       const canSubmit = requestName && (quality || security);
@@ -239,7 +252,7 @@ class App extends Component {
                       `Job id:${requestJobID} queued. Click to Cancel Request`
                       :
                       allocationState === 'completed' ?
-                          'Job Completed!' :'Resource allocated on: ' + allocationState}
+                          'Job Completed!' :'View Jobs On: ' + allocationState}
               </button>
               {allocationState === 'queued' || allocationState === 'completed' ? null :
               <button id='reset-button' onClick={this.resetData}>
