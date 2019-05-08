@@ -18,7 +18,8 @@ class App extends Component {
     this.state = {
       intervalId: undefined,
       requestName: undefined,
-      duration: 5,
+      duration: 10,
+      bandwidth: 500,
       endTime,
       quality: false,
       security: false,
@@ -26,7 +27,8 @@ class App extends Component {
       postTarget: 'http://pcvm2-15.lan.sdn.uky.edu:3000',
       // postTarget: 'http://localhost:3000',
       requestJobID: -1,
-      allocationState: 'draft'
+      allocationState: 'draft',
+      layer: -1
     }
 
   }
@@ -35,6 +37,7 @@ class App extends Component {
     socketIOCallBack((err, ioData) => {
       const data = JSON.parse(ioData);
       console.log('[SOCKET.IO] React IO Data Received:', data);
+
       const matchedJob = data.activeJobs.reduce((acc, j) => {
         if(this.state.requestJobID === j.id) {
           acc.push(j);
@@ -42,9 +45,13 @@ class App extends Component {
         return acc;
       }, []);
 
+      console.log('Matched!', matchedJob);
       // If the queued job was matched. Set it's allocation state.
       if (matchedJob.length > 0) {
-        this.setState({ allocationState: matchedJob[0].allocation });
+        this.setState({
+            allocationState: matchedJob[0].allocation,
+            layer: matchedJob[0].layer
+        });
       }
 
       const completedJobs = data.completedJobs.reduce((acc, j) => {
@@ -104,12 +111,16 @@ class App extends Component {
 
   }
 
-  handleSliderChange = (e) => {
+  handleDurationChange = (e) => {
     this.setState({ duration: e.target.value });
   }
 
+  handleBandwidthChange = (e) => {
+      this.setState({ bandwidth: e.target.value });
+  }
+
   postData = () => {
-    const { requestName, quality, security, endTime , backup, duration } = this.state;
+    const { requestName, quality, security, endTime , backup, duration, bandwidth } = this.state;
     fetch(`${this.state.postTarget}/request`, {
       method: 'POST',
       headers: {
@@ -122,6 +133,7 @@ class App extends Component {
         security,
         backup,
         duration,
+        bandwidth,
         endTime: endTime.unix(),
       })
     }).then((res) => res.json()).then((data) => {
@@ -129,7 +141,8 @@ class App extends Component {
         setTimeout(() => {
             this.setState({
                 allocationState: data.allocation,
-                requestJobID: data.id
+                requestJobID: data.id,
+                layer: data.layer
             });
         }, 600);
     });
@@ -142,7 +155,8 @@ class App extends Component {
       this.setState({
           intervalId: undefined,
           requestName: undefined,
-          duration: 5,
+          duration: 10,
+          bandwidth: 500,
           endTime,
           quality: false,
           security: false,
@@ -204,10 +218,25 @@ class App extends Component {
                   <input
                       id='slider'
                       type='range'
-                      min='5' max='90'
+                      min='10' max='90'
                       value={this.state.duration}
-                      onChange={this.handleSliderChange}
+                      onChange={this.handleDurationChange}
                       step='.5'/>
+              </div>
+              <div id='time-slider'>
+                  Bandwidth (mbps):
+                  <div id='duration-label'>
+                      <div>
+                          {parseFloat(Math.round(this.state.bandwidth * 100)/100)}
+                      </div>
+                  </div>
+                  <input
+                      id='slider'
+                      type='range'
+                      min='500' max='2000'
+                      value={this.state.bandwidth}
+                      onChange={this.handleBandwidthChange}
+                      step='50'/>
               </div>
               <div id='spec-selection'>
                   <button id='btn-quality' className={quality ? 'selected' : ''}
@@ -239,7 +268,7 @@ class App extends Component {
   }
 
   renderButtons = () => {
-      const { requestName, quality, security, allocationState, requestJobID } = this.state;
+      const { requestName, quality, security, allocationState, requestJobID, layer } = this.state;
       const canSubmit = requestName && (quality || security);
       if (this.isAllocatedOrQueued(requestJobID, allocationState)) {
           // Return link and reset button.
@@ -252,7 +281,7 @@ class App extends Component {
                       `Job id:${requestJobID} queued. Click to Cancel Request`
                       :
                       allocationState === 'completed' ?
-                          'Job Completed!' :'View Jobs On: ' + allocationState}
+                          'Job Completed!' :'View Jobs On: ' + allocationState + '(layer:' + layer + ')'}
               </button>
               {allocationState === 'queued' || allocationState === 'completed' ? null :
               <button id='reset-button' onClick={this.resetData}>
