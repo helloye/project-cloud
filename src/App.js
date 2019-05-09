@@ -19,7 +19,7 @@ class App extends Component {
       intervalId: undefined,
       requestName: undefined,
       duration: 10,
-      bandwidth: 500,
+      fileSize: 500,
       endTime,
       quality: false,
       security: false,
@@ -115,12 +115,12 @@ class App extends Component {
     this.setState({ duration: e.target.value });
   }
 
-  handleBandwidthChange = (e) => {
-      this.setState({ bandwidth: e.target.value });
+  handleFileSizeChange = (e) => {
+      this.setState({ fileSize: e.target.value });
   }
 
   postData = () => {
-    const { requestName, quality, security, endTime , backup, duration, bandwidth } = this.state;
+    const { requestName, quality, security, endTime , backup, duration, fileSize } = this.state;
     fetch(`${this.state.postTarget}/request`, {
       method: 'POST',
       headers: {
@@ -133,7 +133,7 @@ class App extends Component {
         security,
         backup,
         duration,
-        bandwidth,
+        fileSize,
         endTime: endTime.unix(),
       })
     }).then((res) => res.json()).then((data) => {
@@ -156,7 +156,7 @@ class App extends Component {
           intervalId: undefined,
           requestName: undefined,
           duration: 10,
-          bandwidth: 500,
+          fileSize: 500,
           endTime,
           quality: false,
           security: false,
@@ -224,18 +224,18 @@ class App extends Component {
                       step='.5'/>
               </div>
               <div id='time-slider'>
-                  Bandwidth (mbps):
+                  File Size (MB):
                   <div id='duration-label'>
                       <div>
-                          {parseFloat(Math.round(this.state.bandwidth * 100)/100)}
+                          {parseFloat(Math.round(this.state.fileSize * 100)/100)}
                       </div>
                   </div>
                   <input
                       id='slider'
                       type='range'
                       min='500' max='2000'
-                      value={this.state.bandwidth}
-                      onChange={this.handleBandwidthChange}
+                      value={this.state.fileSize}
+                      onChange={this.handleFileSizeChange}
                       step='50'/>
               </div>
               <div id='spec-selection'>
