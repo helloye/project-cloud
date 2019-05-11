@@ -223,13 +223,13 @@ class App extends Component {
           {this.renderFormContent()}
           {this.renderJobStatus()}
           {this.renderButtons()}
-          <div id='post-target'>
-            <input
-              value={postTarget}
-              placeholder={'Target destination here... (i.e https://localhost:3000/dc1)'}
-              onChange={(e) => this.handleInputChange(e, 'postTarget')}
-            />
-          </div>
+          {/*<div id='post-target'>*/}
+            {/*<input*/}
+              {/*value={postTarget}*/}
+              {/*placeholder={'Target destination here... (i.e https://localhost:3000/dc1)'}*/}
+              {/*onChange={(e) => this.handleInputChange(e, 'postTarget')}*/}
+            {/*/>*/}
+          {/*</div>*/}
         </div>
       </div>
     );
