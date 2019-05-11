@@ -18,7 +18,8 @@ class App extends Component {
     this.state = {
       intervalId: undefined,
       requestName: undefined,
-      duration: 5,
+      duration: 10,
+      fileSize: 500,
       endTime,
       quality: false,
       security: false,
@@ -26,7 +27,8 @@ class App extends Component {
       postTarget: 'http://pcvm2-15.lan.sdn.uky.edu:3000',
       // postTarget: 'http://localhost:3000',
       requestJobID: -1,
-      allocationState: 'draft'
+      allocationState: 'draft',
+      layer: -1
     }
 
   }
@@ -35,6 +37,7 @@ class App extends Component {
     socketIOCallBack((err, ioData) => {
       const data = JSON.parse(ioData);
       console.log('[SOCKET.IO] React IO Data Received:', data);
+
       const matchedJob = data.activeJobs.reduce((acc, j) => {
         if(this.state.requestJobID === j.id) {
           acc.push(j);
@@ -42,10 +45,27 @@ class App extends Component {
         return acc;
       }, []);
 
+      console.log('Matched!', matchedJob);
+      // If the queued job was matched. Set it's allocation state.
       if (matchedJob.length > 0) {
-        this.setState({ allocationState: matchedJob[0].allocation });
+        this.setState({
+            allocationState: matchedJob[0].allocation,
+            layer: matchedJob[0].layer
+        });
       }
+
+      const completedJobs = data.completedJobs.reduce((acc, j) => {
+          if(this.state.requestJobID === j.id) {
+              acc.push(j);
+          }
+          return acc;
+      }, []);
+      // If we find it in the completed pool, set state to completed and disable link
+        if (completedJobs.length > 0) {
+            this.setState({ allocationState: 'completed' });
+        }
     });
+
     const intervalID = setInterval(() => {
         const endTime = moment().add(this.state.duration, 's');
         this.setState({ endTime });
@@ -91,12 +111,16 @@ class App extends Component {
 
   }
 
-  handleSliderChange = (e) => {
+  handleDurationChange = (e) => {
     this.setState({ duration: e.target.value });
   }
 
+  handleFileSizeChange = (e) => {
+      this.setState({ fileSize: e.target.value });
+  }
+
   postData = () => {
-    const { requestName, quality, security, endTime , backup, duration } = this.state;
+    const { requestName, quality, security, endTime , backup, duration, fileSize } = this.state;
     fetch(`${this.state.postTarget}/request`, {
       method: 'POST',
       headers: {
@@ -109,6 +133,7 @@ class App extends Component {
         security,
         backup,
         duration,
+        fileSize,
         endTime: endTime.unix(),
       })
     }).then((res) => res.json()).then((data) => {
@@ -116,7 +141,8 @@ class App extends Component {
         setTimeout(() => {
             this.setState({
                 allocationState: data.allocation,
-                requestJobID: data.id
+                requestJobID: data.id,
+                layer: data.layer
             });
         }, 600);
     });
@@ -129,7 +155,8 @@ class App extends Component {
       this.setState({
           intervalId: undefined,
           requestName: undefined,
-          duration: 5,
+          duration: 10,
+          fileSize: 500,
           endTime,
           quality: false,
           security: false,
@@ -148,6 +175,7 @@ class App extends Component {
         <h1>Resource Request Dashboard</h1>
         <div id='form'>
           {this.renderFormContent()}
+          {this.renderJobStatus()}
           {this.renderButtons()}
           <div id='post-target'>
             <input
@@ -172,7 +200,8 @@ class App extends Component {
                   <div>Request Name</div>
                   <input
                       id='request-name-input'
-                      placeholder={' Enter your request name here...'}
+                      maxLength={15}
+                      placeholder={'Request name...'}
                       onChange={(e) => this.handleInputChange(e, 'requestName')}
                   />
               </div>
@@ -189,10 +218,25 @@ class App extends Component {
                   <input
                       id='slider'
                       type='range'
-                      min='5' max='90'
+                      min='10' max='90'
                       value={this.state.duration}
-                      onChange={this.handleSliderChange}
+                      onChange={this.handleDurationChange}
                       step='.5'/>
+              </div>
+              <div id='time-slider'>
+                  File Size (MB):
+                  <div id='duration-label'>
+                      <div>
+                          {parseFloat(Math.round(this.state.fileSize * 100)/100)}
+                      </div>
+                  </div>
+                  <input
+                      id='slider'
+                      type='range'
+                      min='500' max='2000'
+                      value={this.state.fileSize}
+                      onChange={this.handleFileSizeChange}
+                      step='50'/>
               </div>
               <div id='spec-selection'>
                   <button id='btn-quality' className={quality ? 'selected' : ''}
@@ -212,21 +256,34 @@ class App extends Component {
       )
   }
 
+  renderJobStatus = () => {
+      const { requestJobID, allocationState, requestName } = this.state;
+      if (allocationState === 'draft' || requestJobID <=0 || !requestName) {
+          return null;
+      }
+      return (<div id='job-status'>
+          <h3>Job: {requestName} (ID:{requestJobID})</h3>
+          <h3>Allocation Status: {allocationState}</h3>
+      </div>)
+  }
+
   renderButtons = () => {
-      const { requestName, quality, security, allocationState, requestJobID } = this.state;
+      const { requestName, quality, security, allocationState, requestJobID, layer } = this.state;
       const canSubmit = requestName && (quality || security);
       if (this.isAllocatedOrQueued(requestJobID, allocationState)) {
           // Return link and reset button.
           return(<div id='submit-button'>
               <button id='redirect-button'
-                      className={allocationState === 'queued' ? 'btn-cancel' : ''}
+                      className={allocationState === 'queued' ? 'btn-cancel'
+                          : allocationState === 'completed' ? 'btn-completed' : ''}
                       onClick={() => this.redirectOrCancel(requestJobID, allocationState)}>
                   {allocationState === 'queued' ?
                       `Job id:${requestJobID} queued. Click to Cancel Request`
                       :
-                      'Resource allocated on: ' + allocationState}
+                      allocationState === 'completed' ?
+                          'Job Completed!' :'View Jobs On: ' + allocationState + '(layer:' + layer + ')'}
               </button>
-              {allocationState === 'queued' ? null :
+              {allocationState === 'queued' || allocationState === 'completed' ? null :
               <button id='reset-button' onClick={this.resetData}>
                   Request New Resources
               </button>
@@ -240,7 +297,7 @@ class App extends Component {
                       disabled={!canSubmit || allocationState === 'requesting'}
                       onClick={this.postData}
               >
-                  {canSubmit && !allocationState === 'requesting' ?
+                  {canSubmit && allocationState !== 'requesting' ?
                       'Submit Request' :
                       allocationState === 'requesting' ? 'Requesting...' : 'Please fill in all the required fields...'}
               </button>
@@ -251,15 +308,19 @@ class App extends Component {
   // Checks if it's allocated to one of the VM's or if queued
   // And double checks if it was assigned an id
   isAllocatedOrQueued = function (jobid, allocation) {
-      return (allocation === 'west1' || allocation === 'west2'
-      || allocation === 'north1' || allocation === 'north2'
-      || allocation === 'east1' || allocation === 'east2'
-      || allocation === 'queued') && jobid > 0;
+      return allocation !== 'draft' && jobid > 0;
   }
 
   redirectOrCancel = (id, dataCenter) => {
-      // If job is still queued, we need to send a cancel.
-      if (dataCenter === 'queued') {
+      // If dataCenter is 'completed' it is not longer on any of the data center.
+      // This redirect should basically reset the app state
+      if (dataCenter === 'completed') {
+          this.resetData();
+
+      }
+
+      // Else if job is still queued, we need to send a cancel.
+      else if (dataCenter === 'queued') {
           // Send post to urbService to cancel job/
           this.killRequest(id);
           // Then reset state of app.

@@ -144,11 +144,15 @@ code {
 }
 
 #redirect-button {
-  background: limegreen !important;
+  background: #5bb3e6 !important;
 }
 
 #redirect-button.btn-cancel {
   background: #d20e00 !important;
+}
+
+#redirect-button.btn-completed {
+  background: limegreen !important;
 }
 
 #reset-button {
