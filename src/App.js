@@ -50,7 +50,7 @@ const serverConfig = {
 };
 
 let socket;
-socket = openSocket('http://pcvm1-14.instageni.wisc.edu:3000');
+socket = openSocket(`http://${serverConfig.urb.hostname}:3000`);
 // socket = openSocket('http://localhost:3000');
 const socketIOCallBack = (cb) => {
   socket.on('job-update', (update) => cb(null, update));
@@ -70,7 +70,7 @@ class App extends Component {
       quality: false,
       security: false,
       backup: false,
-      postTarget: 'http://pcvm1-14.instageni.wisc.edu:3000',
+      postTarget: `http://${serverConfig.urb.hostname}:3000`,
       // postTarget: 'http://localhost:3000',
       requestJobID: -1,
       allocationState: 'draft',
