@@ -3,6 +3,52 @@ import * as moment from 'moment';
 import openSocket from 'socket.io-client';
 import './App.css';
 
+const serverConfig = {
+  "urb": {
+    "hostname": "pcvm2-15.lan.sdn.uky.edu",
+    "l3": "128.163.232.78",
+    "l2": "10.10.4.6"
+  },
+  "dashboard": {
+    "hostname": "pcvm3-12.lan.sdn.uky.edu",
+    "l3": "128.163.232.80",
+    "l2": "10.10.10.23"
+  },
+  "east1": {
+    "hostname": "pcvm1-3.lan.sdn.uky.edu",
+    "l3": "128.163.232.69",
+    "l2": "10.10.10.20"
+  },
+  "east2": {
+    "hostname": "pcvm2-12.lan.sdn.uky.edu",
+    "l3": "128.163.232.75",
+    "l2": "10.10.10.21"
+  },
+  "north1": {
+    "hostname": "pcvm5-5.lan.sdn.uky.edu",
+    "l3": "128.163.232.86",
+    "l2": "10.10.2.3"
+  },
+  "north2": {
+    "hostname": "pcvm5-7.lan.sdn.uky.edu",
+    "l3": "128.163.232.88",
+    "l2": "10.10.2.4"
+  },
+  "west1": {
+    "hostname": "pcvm3-13.lan.sdn.uky.edu",
+    "l3": "128.163.232.81",
+    "l2": "10.10.1.1"
+  },
+  "west2": {
+    "hostname": "pcvm1-5.lan.sdn.uky.edu",
+    "l3": "128.163.232.71",
+    "l2": "10.10.1.2"
+  },
+  "localhost": {
+    "hostname": "localhost"
+  }
+};
+
 let socket;
 socket = openSocket('http://pcvm1-14.instageni.wisc.edu:3000');
 // socket = openSocket('http://localhost:3000');
@@ -328,7 +374,8 @@ class App extends Component {
       } else {
           // Else it is already allocated.
           // TODO: Redirect to proper datacenter UI
-          window.open('http://www.google.com');
+          const serverInfo = this.getServerInfo(dataCenter)
+          window.open(`http://${serverInfo.hostname}`);
       }
   }
 
@@ -341,6 +388,29 @@ class App extends Component {
           },
           body: JSON.stringify({ id })
       })
+  }
+
+  getServerInfo = (s) => {
+    switch (s) {
+      case 'east1':
+        return serverConfig.east1;
+      case 'east2':
+        return serverConfig.east2;
+      case 'west1':
+        return serverConfig.west1;
+      case 'west2':
+        return serverConfig.west2;
+      case 'north1':
+        return serverConfig.north1;
+      case 'north2':
+        return serverConfig.north2;
+      case 'urb':
+        return serverConfig.urb;
+      case 'dashboard':
+        return serverConfig.dashboard;
+      default:
+        return serverConfig.localhost;
+    }
   }
 }
 
