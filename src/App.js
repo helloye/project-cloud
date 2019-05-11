@@ -24,7 +24,7 @@ class App extends Component {
       quality: false,
       security: false,
       backup: false,
-      postTarget: 'http://pcvm2-15.lan.sdn.uky.edu:3000',
+      postTarget: 'http://pcvm1-14.instageni.wisc.edu:3000',
       // postTarget: 'http://localhost:3000',
       requestJobID: -1,
       allocationState: 'draft',
