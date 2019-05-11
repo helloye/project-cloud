@@ -4,7 +4,7 @@ import openSocket from 'socket.io-client';
 import './App.css';
 
 let socket;
-socket = openSocket('http://pcvm2-15.lan.sdn.uky.edu:3000');
+socket = openSocket('http://pcvm1-14.instageni.wisc.edu:3000');
 // socket = openSocket('http://localhost:3000');
 const socketIOCallBack = (cb) => {
   socket.on('job-update', (update) => cb(null, update));
