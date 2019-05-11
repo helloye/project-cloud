@@ -316,6 +316,7 @@ class App extends Component {
   renderButtons = () => {
       const { requestName, quality, security, allocationState, requestJobID, layer } = this.state;
       const canSubmit = requestName && (quality || security);
+      const serverInfo = this.getServerInfo(allocationState);
       if (this.isAllocatedOrQueued(requestJobID, allocationState)) {
           // Return link and reset button.
           return(<div id='submit-button'>
@@ -327,7 +328,7 @@ class App extends Component {
                       `Job id:${requestJobID} queued. Click to Cancel Request`
                       :
                       allocationState === 'completed' ?
-                          'Job Completed!' :'View Jobs On: ' + allocationState + '(layer:' + layer + ')'}
+                          'Job Completed!' : `View Job On [${allocationState}] - (Layer:${layer} - ${layer === 2 ? serverInfo.l2 : serverInfo.l3})`}
               </button>
               {allocationState === 'queued' || allocationState === 'completed' ? null :
               <button id='reset-button' onClick={this.resetData}>
