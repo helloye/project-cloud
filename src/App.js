@@ -374,9 +374,8 @@ class App extends Component {
           this.resetData();
       } else {
           // Else it is already allocated.
-          // TODO: Redirect to proper datacenter UI
           const serverInfo = this.getServerInfo(dataCenter)
-          window.open(`http://${serverInfo.hostname}`);
+          window.open(`http://${serverInfo.hostname}/cloud-service/dataCenter`);
       }
   }
 
